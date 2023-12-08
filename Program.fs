@@ -18,7 +18,6 @@ let removeDigits (input: string) =
     let regex = new Regex(pattern)
     regex.Replace(input, "")
 
-
 let replaceAtIndex (index: int, text: string, digitAsText: string, digitAsNumber: int) =
     if (index + digitAsText.Length <= text.Length) then
         let potentialMatch = text.Substring(index, digitAsText.Length)
@@ -38,8 +37,6 @@ let isMatchAtIndex (index: int, text: string, digitAsText: string, digitAsNumber
 
 let rec replaceNumberToDigit (index: int, text: string) : string =
     if (index < text.Length - 1) then
-        let mutable newText = text
-
         let hasMatch =
             digitValues
             |> Array.filter (fun d -> isMatchAtIndex (index, text, fst d, snd d))
@@ -66,6 +63,7 @@ let sum =
     File.ReadAllLines("day-1.txt")
     |> Array.map (fun elem -> replaceNumberToDigit (0, elem))
     |> Array.map (fun elem -> extractDigits elem)
+    // |> Array.iter (fun elem -> printfn $"{elem}")
     |> Array.reduce (fun acc elem -> acc + elem)
 
 // let result = isMatchAtIndex (4, "eightwothree", "two", 2)

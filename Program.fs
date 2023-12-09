@@ -13,59 +13,45 @@ let digitValues =
        ("eight", 8)
        ("nine", 9) |]
 
-let removeDigits (input: string) =
-    let pattern = "\\d" // Regular expression to match digits
-    let regex = new Regex(pattern)
-    regex.Replace(input, "")
+let rec extractFirstNumber (text: string) : int =
+    let index = 0
 
-let replaceAtIndex (index: int, text: string, digitAsText: string, digitAsNumber: int) =
-    if (index + digitAsText.Length <= text.Length) then
-        let potentialMatch = text.Substring(index, digitAsText.Length)
-
-        if digitAsText = potentialMatch then
-            text.Substring(0, index)
-            + digitAsNumber.ToString()
-            + text.Substring(index + digitAsText.Length, text.Length - index - digitAsText.Length)
-        else
-            text
+    if Char.IsDigit text[index] then
+        Int32.Parse(text[index].ToString())
     else
-        text
-
-let isMatchAtIndex (index: int, text: string, digitAsText: string, digitAsNumber: int) : bool =
-    (index + digitAsText.Length <= text.Length
-     && text.Substring(index, digitAsText.Length) = digitAsText)
-
-let rec replaceNumberToDigit (index: int, text: string) : string =
-    if (index < text.Length - 1) then
-        let hasMatch =
-            digitValues
-            |> Array.filter (fun d -> isMatchAtIndex (index, text, fst d, snd d))
+        let hasMatch = digitValues |> Array.filter (fun d -> text.StartsWith(fst d))
 
         if hasMatch.Length > 0 then
-            let newText = replaceAtIndex (index, text, fst hasMatch[0], snd hasMatch[0])
-            replaceNumberToDigit (0, newText)
+            snd hasMatch[0]
         else
-            replaceNumberToDigit (index + 1, text)
+            let t = text.Substring(index + 1, text.Length - 1)
+            extractFirstNumber (t)
+
+let rec extractLastNumber (text: string) : int =
+    let index = text.Length - 1
+
+    if Char.IsDigit text[index] then
+        Int32.Parse(text[index].ToString())
     else
-        text
+        let hasMatch = digitValues |> Array.filter (fun d -> text.EndsWith(fst d))
+
+        if hasMatch.Length > 0 then
+            snd hasMatch[0]
+        else
+            let t = text.Substring(0, text.Length - 1)
+            extractLastNumber (t)
 
 let extractDigits (text: string) : int =
-    let firstDigit = text.ToCharArray() |> Array.tryFind (fun c -> Char.IsDigit c)
-    let lastDigit = text.ToCharArray() |> Array.tryFindBack (fun c -> Char.IsDigit c)
-
-    if (firstDigit.IsSome && lastDigit.IsSome) then
-        let newDigit = String [| firstDigit.Value; lastDigit.Value |]
-        Int32.Parse(newDigit)
-    else
-        0
+    let firstDigit = extractFirstNumber text
+    let lastDigit = extractLastNumber text
+    let combinedString = firstDigit.ToString() + lastDigit.ToString()
+    Int32.Parse(combinedString)
 
 let sum =
     File.ReadAllLines("day-1.txt")
-    |> Array.map (fun elem -> replaceNumberToDigit (0, elem))
     |> Array.map (fun elem -> extractDigits elem)
     // |> Array.iter (fun elem -> printfn $"{elem}")
     |> Array.reduce (fun acc elem -> acc + elem)
 
-// let result = isMatchAtIndex (4, "eightwothree", "two", 2)
 let result = sum
 printfn $"{result}"

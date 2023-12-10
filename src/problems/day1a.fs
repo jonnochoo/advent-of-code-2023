@@ -3,18 +3,29 @@ namespace advent
 open System
 open System.IO
 
-module Day1 = 
-    let extractDigits (text: string):int = 
-        let firstDigit = 
-            text.ToCharArray()
-            |> Array.tryFind(fun c -> Char.IsDigit c)
-        let lastDigit = 
-            text.ToCharArray()
-            |> Array.tryFindBack(fun c -> Char.IsDigit c)
-        let newDigit = String [| firstDigit.Value;lastDigit.Value |]
-        Int32.Parse(newDigit)
+module Day1a =
 
-    let sum = 
-        File.ReadAllLines("day-1.txt")
-        |> Array.map (fun elem -> extractDigits elem)
-        |> Array.reduce(fun acc elem -> acc + elem )
+    let digitValues =
+        [| ("one", 1)
+           ("two", 2)
+           ("three", 3)
+           ("four", 4)
+           ("five", 5)
+           ("six", 6)
+           ("seven", 7)
+           ("eight", 8)
+           ("nine", 9) |]
+
+    let rec extractFirstNumber (text: string) : string =
+        let index = 0
+
+        if Char.IsDigit text[index] then
+            text[index].ToString()
+        else
+            let hasMatch = digitValues |> Array.filter (fun d -> text.StartsWith(fst d))
+
+            if hasMatch.Length > 0 then
+                fst hasMatch[0]
+            else
+                let t = text.Substring(index + 1, text.Length - 1)
+                extractFirstNumber (t)

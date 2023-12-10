@@ -46,25 +46,40 @@ module Day2 =
 
         game
 
-    let evaluateColourCube(colourCube: ColourCube) : bool =
-        if colourCube.Colour = "Red" && colourCube.Count > 12 then
+    let validateColourCube (colourCube: ColourCube) : bool =
+        printfn $"{colourCube}"
+
+        if colourCube.Colour = "red" && colourCube.Count > 12 then
+            false
+        elif colourCube.Colour = "green" && colourCube.Count > 13 then
+            false
+        elif colourCube.Colour = "blue" && colourCube.Count > 14 then
             false
         else
             true
 
-    let evaluateGameSet(gameSet: GameSet) : bool =
-        let validColourCubes = gameSet.ColourCubes |> Seq.filter (fun item -> evaluateColourCube item) |> Seq.toArray
+    let validateGameSet (gameSet: GameSet) : bool =
+        let validColourCubes =
+            gameSet.ColourCubes
+            |> Seq.filter (fun item -> validateColourCube item)
+            |> Seq.toArray
+
         gameSet.ColourCubes.Length = validColourCubes.Length
 
-    let evaluateGameIsInvalid(game: Game) : bool =
-        let validGameSets = game.GameSets
-            |> Seq.filter (fun item -> evaluateGameSet item)
-            |> Seq.toArray
+    let validateGame (game: Game) : bool =
+        let validGameSets =
+            game.GameSets |> Seq.filter (fun item -> validateGameSet item) |> Seq.toArray
+
         game.GameSets.Length = validGameSets.Length
 
     let run =
         printfn "day 2"
         // parseGameSet "7 blue, 1 red, 14 green"
-        File.ReadAllLines("day-2.txt")
-        |> Seq.map (fun line -> parse line)
-        |> Seq.filter (fun item -> evaluateGameIsInvalid item)
+        let result =
+            File.ReadAllLines("day-2.txt")
+            |> Seq.map (fun line -> parse line)
+            |> Seq.filter (fun item -> validateGame item)
+            |> Seq.map (fun item -> item.Number)
+            |> Seq.reduce (fun acc elem -> acc + elem)
+
+        printfn $"{result}"
